@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - RAG_ENV=development
+      - RAG__MILVUS__HOST=milvus
+      - RAG__DATABASE__URL=postgresql+psycopg2://postgres:postgres@postgres:5432/rag_project
+      - RAG__REDIS__HOST=redis
+    depends_on:
+      - milvus
+      - postgres
+      - redis
+    volumes:
+      - ..:/app
+      - uploads:/app/data/uploads
+    command: uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  milvus:
+    image: milvusdb/milvus:latest
+    ports:
+      - "19530:19530"
+    environment:
+      - ETCD_HOST=etcd
+      - MINIO_HOST=minio
+    depends_on:
+      - etcd
+      - minio
+    volumes:
+      - milvus_data:/var/lib/milvus
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    volumes:
+      - minio_data:/data
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: rag_project
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  uploads:
+  milvus_data:
+  minio_data:
+  postgres_data:
