@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(git *)",
-      "Bash(python -c \"from backend.core.config import settings; print\\(f'app.name={settings.app.name}, milvus.host={settings.milvus.host}'\\)\")"
-    ]
-  }
-}
