@@ -126,4 +126,17 @@ class Settings(BaseSettings):
         return settings
 
 
-settings = Settings.load()
+_settings: Settings | None = None
+
+
+def get_settings() -> Settings:
+    global _settings
+    if _settings is None:
+        try:
+            _settings = Settings.load()
+        except ImportError:
+            _settings = Settings()
+    return _settings
+
+
+settings = get_settings()
