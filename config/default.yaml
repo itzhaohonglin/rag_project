@@ -1,0 +1,62 @@
+app:
+  name: rag-project
+  version: "0.1.0"
+  debug: false
+  host: "0.0.0.0"
+  port: 8000
+
+milvus:
+  host: localhost
+  port: 19530
+  collection: document_chunks
+
+database:
+  url: postgresql+psycopg2://postgres:postgres@localhost:5432/rag_project
+  pool_size: 10
+  max_overflow: 20
+
+llm:
+  provider: openai  # openai | local
+  openai:
+    api_key: ""
+    model: gpt-4o-mini
+    temperature: 0.1
+    max_tokens: 2048
+  local:
+    base_url: http://localhost:8001/v1
+    model: ""
+    temperature: 0.1
+    max_tokens: 2048
+
+embedding:
+  provider: openai  # openai | local
+  openai:
+    model: text-embedding-3-small
+    dimensions: 1536
+  local:
+    model_path: ""
+    dimensions: 768
+
+celery:
+  broker_url: redis://localhost:6379/0
+  result_backend: redis://localhost:6379/0
+
+redis:
+  host: localhost
+  port: 6379
+  db: 0
+
+retrieval:
+  top_k: 10
+  score_threshold: 0.0
+  rerank_enabled: true
+  rerank_model: BAAI/bge-reranker-v2-m3
+
+storage:
+  upload_dir: ./data/uploads
+  chunk_size: 512
+  chunk_overlap: 64
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

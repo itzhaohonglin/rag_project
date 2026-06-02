@@ -1,0 +1,12 @@
+app:
+  debug: false
+
+logging:
+  level: WARNING
+
+database:
+  pool_size: 20
+  max_overflow: 40
+
+retrieval:
+  top_k: 20
