@@ -62,9 +62,6 @@ data/
 *.sqlite
 *.sqlite3
 
-# Docker
-.dockerignore
-
 # Logs
 *.log
 *.log.*
@@ -87,14 +84,3 @@ coverage.json
 
 # Project specific
 .claude/settings.local.json
-*.pyc
-
-# OS
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*~
-
-# Docker
-.docker/
