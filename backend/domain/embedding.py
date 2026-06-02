@@ -1,14 +1,14 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
 class EmbeddingVector:
     vector: list[float]
-    dimension: int
     model_name: str
 
-    def __post_init__(self):
-        self.dimension = len(self.vector)
+    @property
+    def dimension(self) -> int:
+        return len(self.vector)
 
 
 @dataclass

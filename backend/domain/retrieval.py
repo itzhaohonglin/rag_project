@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from datetime import datetime
 
 from backend.domain.enums import RetrievalMode
 

@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
-from backend.domain.enums import DocumentStatus, DocumentType, ChunkStrategy
+from backend.domain.enums import DocumentStatus, DocumentType
 
 
 class Document:
@@ -22,8 +22,8 @@ class Document:
         self.document_type = document_type
         self.status = status
         self.metadata = metadata or {}
-        self.created_at = created_at or datetime.utcnow()
-        self.updated_at = updated_at or datetime.utcnow()
+        self.created_at = created_at or datetime.now(timezone.utc)
+        self.updated_at = updated_at or datetime.now(timezone.utc)
 
     def to_dict(self) -> dict:
         return {
