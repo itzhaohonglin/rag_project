@@ -1,10 +1,100 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-.env
-.venv/
+*.pyd
+*.so
+*.egg
 *.egg-info/
 dist/
 build/
-data/uploads/
+develop-eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+*.whl
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+pytest_cache/
+.pytest_cache/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+*.local
+
+# Conda
+conda-meta/
+envs/
+pkgs/
+
+# Data / Uploads
+data/
+!data/.gitkeep
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
+*.log.*
+
+# Testing / Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage/
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+nosetests.xml
+coverage.json
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Project specific
 .claude/settings.local.json
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Docker
+.docker/
