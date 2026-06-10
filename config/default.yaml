@@ -18,6 +18,7 @@ database:
 llm:
   provider: openai  # openai | local
   openai:
+    base_url: ""                     # 中转 API 填这里，例如 https://api.abc.com/v1
     api_key: ""
     model: gpt-4o-mini
     temperature: 0.1

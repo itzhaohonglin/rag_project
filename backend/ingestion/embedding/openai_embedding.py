@@ -5,9 +5,19 @@ from backend.ingestion.embedding.base import EmbeddingProvider
 
 
 class OpenAIEmbeddingProvider(EmbeddingProvider):
-    def __init__(self, config: EmbeddingConfig | None = None):
+    def __init__(
+        self,
+        config: EmbeddingConfig | None = None,
+        base_url: str | None = None,
+        api_key: str | None = None,
+    ):
         super().__init__(config or EmbeddingConfig())
-        self.client = AsyncOpenAI()
+        kwargs = {}
+        if base_url:
+            kwargs["base_url"] = base_url
+        if api_key:
+            kwargs["api_key"] = api_key
+        self.client = AsyncOpenAI(**kwargs)
         self._dimension = self.config.dimension
 
     async def embed(self, texts: list[str]) -> list[list[float]]:

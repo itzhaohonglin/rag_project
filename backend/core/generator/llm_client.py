@@ -7,7 +7,10 @@ class LLMClient:
     def __init__(self):
         self.provider = settings.llm.provider
         if self.provider == "openai":
-            self.client = AsyncOpenAI(api_key=settings.llm.openai.api_key or None)
+            kwargs = {"api_key": settings.llm.openai.api_key or None}
+            if settings.llm.openai.base_url:
+                kwargs["base_url"] = settings.llm.openai.base_url
+            self.client = AsyncOpenAI(**kwargs)
             self.model = settings.llm.openai.model
             self.temperature = settings.llm.openai.temperature
             self.max_tokens = settings.llm.openai.max_tokens

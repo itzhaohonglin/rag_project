@@ -4,6 +4,7 @@ from celery import shared_task
 
 from backend.core.config import settings
 from backend.domain.document import Document
+from backend.domain.embedding import EmbeddingConfig as DomainEmbeddingConfig
 from backend.domain.enums import DocumentStatus, DocumentType
 from backend.ingestion.embedding.openai_embedding import OpenAIEmbeddingProvider
 from backend.ingestion.processor.pipeline import IngestionPipeline
@@ -30,7 +31,17 @@ async def _process_document(document_id: str, file_path: str):
     session = SessionLocal()
     try:
         repo = DocumentRepository(session)
-        provider = OpenAIEmbeddingProvider()
+        cfg = settings.embedding
+        domain_cfg = DomainEmbeddingConfig(
+            model_name=cfg.openai.model if cfg.provider == "openai" else "",
+            dimension=cfg.dimensions,
+            provider=cfg.provider,
+        )
+        provider = OpenAIEmbeddingProvider(
+            config=domain_cfg,
+            base_url=settings.llm.openai.base_url or None,
+            api_key=settings.llm.openai.api_key or None,
+        )
         pipeline = IngestionPipeline(embedding_provider=provider)
         vector_store = MilvusStore()
         await vector_store.connect()

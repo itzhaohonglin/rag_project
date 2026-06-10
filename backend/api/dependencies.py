@@ -36,7 +36,19 @@ async def get_vector_store() -> MilvusStore:
 def get_embedding_provider() -> OpenAIEmbeddingProvider:
     global _embedding_provider
     if _embedding_provider is None:
-        _embedding_provider = OpenAIEmbeddingProvider()
+        from backend.domain.embedding import EmbeddingConfig as DomainEmbeddingConfig
+
+        cfg = settings.embedding
+        domain_cfg = DomainEmbeddingConfig(
+            model_name=cfg.openai.model if cfg.provider == "openai" else "",
+            dimension=cfg.dimensions,
+            provider=cfg.provider,
+        )
+        _embedding_provider = OpenAIEmbeddingProvider(
+            config=domain_cfg,
+            base_url=settings.llm.openai.base_url or None,
+            api_key=settings.llm.openai.api_key or None,
+        )
     return _embedding_provider
 
 
