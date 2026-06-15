@@ -10,12 +10,19 @@ collection_schema = CollectionSchema(
         FieldSchema(name="chunk_index", dtype=DataType.INT64),
         FieldSchema(name="metadata_json", dtype=DataType.VARCHAR, max_length=4096),
         FieldSchema(name="embedding", dtype=DataType.FLOAT_VECTOR, dim=1536),
+        FieldSchema(name="sparse_embedding", dtype=DataType.SPARSE_FLOAT_VECTOR),
     ],
     description="Document chunks for RAG",
 )
 
-index_params = {
+dense_index_params = {
     "metric_type": "COSINE",
     "index_type": "IVF_FLAT",
+    "params": {"nlist": 1024},
+}
+
+sparse_index_params = {
+    "metric_type": "IP",
+    "index_type": "SPARSE_INVERTED_INDEX",
     "params": {"nlist": 1024},
 }

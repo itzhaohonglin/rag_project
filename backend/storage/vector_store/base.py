@@ -18,7 +18,32 @@ class VectorStore(ABC):
         score_threshold: float = 0.0,
         filters: dict | None = None,
     ) -> list[RetrievedChunk]:
-        """Search for similar chunks."""
+        """Dense vector search."""
+        ...
+
+    @abstractmethod
+    async def sparse_search(
+        self,
+        sparse_embedding: dict[int, float],
+        top_k: int = 10,
+        score_threshold: float = 0.0,
+        filters: dict | None = None,
+    ) -> list[RetrievedChunk]:
+        """Sparse vector search (BM25)."""
+        ...
+
+    @abstractmethod
+    async def hybrid_search(
+        self,
+        dense_embedding: list[float],
+        sparse_embedding: dict[int, float],
+        top_k: int = 10,
+        dense_weight: float = 0.7,
+        sparse_weight: float = 0.3,
+        score_threshold: float = 0.0,
+        filters: dict | None = None,
+    ) -> list[RetrievedChunk]:
+        """Hybrid dense + sparse search with weighted fusion."""
         ...
 
     @abstractmethod

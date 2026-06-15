@@ -1,6 +1,10 @@
 from pathlib import Path
 
 from backend.ingestion.loader.base import Loader
+from backend.ingestion.loader.text_loader import TextLoader
+from backend.ingestion.loader.pdf_loader import PDFLoader
+from backend.ingestion.loader.markdown_loader import MarkdownLoader
+from backend.ingestion.loader.office_loader import WordLoader, ExcelLoader, PPTLoader
 
 
 class CodeLoader(Loader):

@@ -3,7 +3,7 @@ app:
   version: "0.1.0"
   debug: false
   host: "0.0.0.0"
-  port: 8000
+  port: 8001
 
 milvus:
   host: localhost
@@ -47,11 +47,17 @@ redis:
   port: 6379
   db: 0
 
+crag:
+  enabled: false  # 默认关闭 CRAG（Corrective RAG），API 传 crag=true 开启
+
 retrieval:
   top_k: 10
   score_threshold: 0.0
   rerank_enabled: true
   rerank_model: BAAI/bge-reranker-v2-m3
+  retrieval_mode: hybrid  # dense | sparse | hybrid
+  hybrid_dense_weight: 0.7
+  hybrid_sparse_weight: 0.3
 
 storage:
   upload_dir: ./data/uploads

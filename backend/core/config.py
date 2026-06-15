@@ -87,11 +87,20 @@ class CeleryConfig(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore")
 
 
+class CRAGConfig(BaseSettings):
+    enabled: bool = False   # 默认关闭，API 传 crag=true 可覆盖
+
+    model_config = SettingsConfigDict(extra="ignore")
+
+
 class RetrievalConfig(BaseSettings):
     top_k: int = 10
     score_threshold: float = 0.0
     rerank_enabled: bool = True
     rerank_model: str = "BAAI/bge-reranker-v2-m3"
+    retrieval_mode: str = "hybrid"  # dense | sparse | hybrid
+    hybrid_dense_weight: float = 0.7
+    hybrid_sparse_weight: float = 0.3
 
     model_config = SettingsConfigDict(extra="ignore")
 
@@ -115,6 +124,38 @@ class AppConfig(BaseSettings):
 
 
 class Settings(BaseSettings):
+    """
+    顶层配置模型，聚合所有子模块配置。
+
+    ── 加载流程（低 → 高覆盖）────────────────────────────
+      1. config/default.yaml         — 默认值
+      2. config/{env}.yaml           — 环境覆盖（development/production）
+      3. .env 文件（RAG_LLM__OPENAI__API_KEY 等）
+      4. cls(**kwargs) 实例化        — ⬅ 至此是 load() 手动做的事
+      5. BaseSettings.__init__ 隐式扫描 os.environ
+         （匹配 RAG_ 前缀的变量）     — ⬅ 这是 pydantic-settings 框架自动做的
+
+    ── 约定 ──────────────────────────────────────────────
+      - 环境变量前缀：RAG_
+      - 嵌套分隔符：__（双层下划线）
+        例：RAG_LLM__OPENAI__API_KEY → llm.openai.api_key
+      - load() 类方法整合上述来源后实例化
+
+    ── 参数（按字段声明顺序）───────────────────────────────
+
+    app:        应用基本信息（名称、版本、调试开关、监听地址和端口）
+                 对应 config 中 app.name / app.version / app.debug / app.host / app.port
+
+    milvus:     Milvus 向量数据库连接和集合配置
+    database:   PostgreSQL 关系数据库连接池配置
+    llm:        大语言模型选择（openai / local）及各 provider 参数
+    embedding:  向量嵌入模型选择及维度配置
+    celery:     异步任务队列的 broker / backend 地址
+    redis:      Redis 缓存连接参数
+    retrieval:  检索策略参数（top_k、阈值、重排序开关及模型）
+    crag:       Corrective RAG 配置（默认开关）
+    storage:    文件上传目录和文档分块参数
+    """
     model_config = SettingsConfigDict(
         env_prefix="RAG_",
         env_nested_delimiter="__",
@@ -130,6 +171,7 @@ class Settings(BaseSettings):
     embedding: EmbeddingConfig = EmbeddingConfig()
     celery: CeleryConfig = CeleryConfig()
     redis: RedisConfig = RedisConfig()
+    crag: CRAGConfig = CRAGConfig()
     retrieval: RetrievalConfig = RetrievalConfig()
     storage: StorageConfig = StorageConfig()
 
@@ -179,8 +221,12 @@ class Settings(BaseSettings):
                     if key.startswith("RAG_"):
                         parts = key[4:].lower().split("__")
                         target = kwargs
-                        for p in parts[:-1]:
-                            target = target.setdefault(p, {})
+                        try:
+                            for p in parts[:-1]:
+                                target = target.setdefault(p, {})
+                        except AttributeError:
+                            # 路径中间节点不是 dict（如 YAML 标量字段被当路径走），跳过
+                            continue
                         if parts[-1]:
                             target[parts[-1]] = val
 

@@ -1,19 +1,17 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 
-from backend.api.errors import APIError, success_response
+from backend.api.dependencies import get_conversation_repo, get_rag_engine
+from backend.api.errors import success_response
 from backend.api.schemas.conversation import (
     ConversationListResponse,
     ConversationResponse,
-    MessageResponse,
     SendMessageRequest,
     SendMessageResponse,
 )
 from backend.core.rag_engine import RAGEngine
-from backend.domain.conversation import Citation, Conversation, Message
+from backend.domain.conversation import Conversation, Message
 from backend.domain.enums import MessageRole
 from backend.domain.exceptions import DocumentNotFoundError
-from backend.storage.relational_db.base import get_session
 from backend.storage.relational_db.conversation_repo import ConversationRepository
 
 router = APIRouter()
@@ -21,7 +19,7 @@ router = APIRouter()
 
 @router.post("", response_model=dict)
 async def create_conversation(
-    conv_repo: ConversationRepository = Depends(),
+    conv_repo: ConversationRepository = Depends(get_conversation_repo),
 ):
     conversation = Conversation()
     conv_repo.save(conversation)
@@ -35,7 +33,7 @@ async def create_conversation(
 async def list_conversations(
     skip: int = 0,
     limit: int = 20,
-    conv_repo: ConversationRepository = Depends(),
+    conv_repo: ConversationRepository = Depends(get_conversation_repo),
 ):
     convs = conv_repo.list(skip=skip, limit=limit)
     return success_response(ConversationListResponse(
@@ -47,7 +45,7 @@ async def list_conversations(
 @router.get("/{conversation_id}", response_model=dict)
 async def get_conversation(
     conversation_id: str,
-    conv_repo: ConversationRepository = Depends(),
+    conv_repo: ConversationRepository = Depends(get_conversation_repo),
 ):
     conv = conv_repo.get(conversation_id)
     if not conv:
@@ -59,8 +57,8 @@ async def get_conversation(
 async def send_message(
     conversation_id: str,
     req: SendMessageRequest,
-    conv_repo: ConversationRepository = Depends(),
-    engine: RAGEngine = Depends(),
+    conv_repo: ConversationRepository = Depends(get_conversation_repo),
+    engine: RAGEngine = Depends(get_rag_engine),
 ):
     conv = conv_repo.get(conversation_id)
     if not conv:

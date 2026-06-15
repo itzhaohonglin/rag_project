@@ -62,4 +62,4 @@ async def search(query: str, top_k: int = 5):
 if __name__ == "__main__":
     q = ("他擅长的java技能有哪些")
     print(f"查询: {q}\n")
-    asyncio.run(search(q))
+    asyncio.run(search(q,2))

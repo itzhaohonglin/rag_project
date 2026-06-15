@@ -6,6 +6,7 @@ from backend.core.config import settings
 from backend.domain.document import Document
 from backend.domain.embedding import EmbeddingConfig as DomainEmbeddingConfig
 from backend.domain.enums import DocumentStatus, DocumentType
+from backend.ingestion.embedding.bm25_sparse import Bm25SparseEmbedding
 from backend.ingestion.embedding.openai_embedding import OpenAIEmbeddingProvider
 from backend.ingestion.processor.pipeline import IngestionPipeline
 from backend.storage.file_store.local_fs import LocalFileStore
@@ -42,7 +43,11 @@ async def _process_document(document_id: str, file_path: str):
             base_url=settings.llm.openai.base_url or None,
             api_key=settings.llm.openai.api_key or None,
         )
-        pipeline = IngestionPipeline(embedding_provider=provider)
+        sparse_provider = Bm25SparseEmbedding()
+        pipeline = IngestionPipeline(
+            embedding_provider=provider,
+            sparse_embedding_provider=sparse_provider,
+        )
         vector_store = MilvusStore()
         await vector_store.connect()
 
@@ -52,6 +57,7 @@ async def _process_document(document_id: str, file_path: str):
             return
 
         chunks = await pipeline.process(file_path, doc)
+        sparse_provider.save_state()
         await vector_store.insert_chunks(chunks)
         repo.update_status(document_id, DocumentStatus.READY)
     finally:

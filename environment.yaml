@@ -1,4 +1,4 @@
-name: rag-project
+name: rag_project
 channels:
   - conda-forge
   - defaults

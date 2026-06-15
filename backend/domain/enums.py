@@ -33,5 +33,6 @@ class MessageRole(Enum):
 
 
 class RetrievalMode(Enum):
-    VECTOR = "vector"
+    DENSE = "dense"
+    SPARSE = "sparse"
     HYBRID = "hybrid"
